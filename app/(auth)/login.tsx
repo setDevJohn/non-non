@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuthStore } from '@/store';
-import { Input, Button, Card } from '@/components/ui';
+import { ControlledInput, Button, Card, SafeScreen } from '@/components/ui';
 import { Flame, Dumbbell } from 'lucide-react-native';
 
 const loginSchema = z.object({
@@ -21,6 +21,11 @@ export default function LoginScreen() {
   
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    mode: 'onChange',
+    defaultValues: {
+      email: 'jhony00._@hotmail.com',
+      password: '123456',
+    },
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -33,64 +38,66 @@ export default function LoginScreen() {
   };
 
   return (
-    <ScrollView 
-      className="flex-1 bg-zinc-950"
-      showsVerticalScrollIndicator={false}
-    >
-      <View className="flex-1 justify-center p-6 pt-20">
-        {/* Header */}
-        <View className="items-center mb-10">
-          <View className="bg-gradient-to-br from-emerald-500 to-emerald-700 p-6 rounded-full mb-6">
-            <Dumbbell size={48} color="#fff" />
+    <SafeScreen>
+      <ScrollView 
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="flex-1 justify-center p-6">
+          {/* Header */}
+          <View className="items-center mb-10">
+            <View className="bg-gradient-to-br from-emerald-500 to-emerald-700 p-6 rounded-full mb-6">
+              <Dumbbell size={48} color="#fff" />
+            </View>
+            <Card className="items-center py-6 px-8">
+              <Text className="text-white font-extrabold text-3xl text-center mb-2">
+                Gym Competition
+              </Text>
+              <Text className="text-zinc-400 text-center">
+                Entre para continuar sua jornada fitness
+              </Text>
+            </Card>
           </View>
-          <Card className="items-center py-6 px-8">
-            <Text className="text-white font-extrabold text-3xl text-center mb-2">
-              Gym Competition
+
+          {/* Form */}
+          <ControlledInput
+            label="Email"
+            placeholder="seu@email.com"
+            control={control}
+            name="email"
+            error={errors.email?.message}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+
+          <ControlledInput
+            label="Senha"
+            placeholder="••••••••"
+            control={control}
+            name="password"
+            error={errors.password?.message}
+            secureTextEntry
+          />
+
+          <Button
+            title="Entrar"
+            onPress={handleSubmit(onSubmit)}
+            loading={isLoading}
+            style={{ marginTop: 24 }}
+            icon={<Flame size={20} color="#fff" />}
+          />
+
+          <TouchableOpacity
+            className="mt-6"
+            onPress={() => router.push('/(auth)/register')}
+            activeOpacity={0.7}
+          >
+            <Text className="text-emerald-500 text-center font-semibold">
+              Não tem conta? Cadastre-se
             </Text>
-            <Text className="text-zinc-400 text-center">
-              Entre para continuar sua jornada fitness
-            </Text>
-          </Card>
+          </TouchableOpacity>
         </View>
-
-        {/* Form */}
-        <Input
-          label="Email"
-          placeholder="seu@email.com"
-          control={control}
-          name="email"
-          error={errors.email?.message}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-
-        <Input
-          label="Senha"
-          placeholder="••••••••"
-          control={control}
-          name="password"
-          error={errors.password?.message}
-          secureTextEntry
-        />
-
-        <Button
-          title="Entrar"
-          onPress={handleSubmit(onSubmit)}
-          loading={isLoading}
-          style={{ marginTop: 24 }}
-          icon={<Flame size={20} color="#fff" />}
-        />
-
-        <TouchableOpacity
-          className="mt-6"
-          onPress={() => router.push('/(auth)/register')}
-          activeOpacity={0.7}
-        >
-          <Text className="text-emerald-500 text-center font-semibold">
-            Não tem conta? Cadastre-se
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeScreen>
   );
 }

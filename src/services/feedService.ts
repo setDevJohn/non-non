@@ -1,22 +1,36 @@
 import api from './api';
 import { FeedPost, CreateCommentData } from '@/types';
+import { showToast } from '@/utils/toast';
 
 export const feedService = {
-  getFeed: async (eventId?: string): Promise<FeedPost[]> => {
-    const url = eventId ? `/feed?eventId=${eventId}` : '/feed';
-    const response = await api.get(url);
+  getGlobalFeed: async (page = 1, limit = 20): Promise<any> => {
+    const response = await api.get(`/feed/global?page=${page}&limit=${limit}`);
     return response.data;
   },
 
-  likePost: async (postId: string): Promise<void> => {
-    await api.post(`/feed/${postId}/like`);
+  getEventFeed: async (eventId: string, page = 1, limit = 20): Promise<any> => {
+    const response = await api.get(`/feed/event/${eventId}?page=${page}&limit=${limit}`);
+    return response.data;
   },
 
-  unlikePost: async (postId: string): Promise<void> => {
-    await api.delete(`/feed/${postId}/like`);
+  getUserFeed: async (userId: string, page = 1, limit = 20): Promise<any> => {
+    const response = await api.get(`/feed/user/${userId}?page=${page}&limit=${limit}`);
+    return response.data;
   },
 
-  addComment: async (data: CreateCommentData): Promise<void> => {
-    await api.post(`/feed/${data.postId}/comments`, { text: data.text });
+  likePost: async (postId: string): Promise<any> => {
+    const response = await api.post(`/feed/${postId}/like`);
+    return response.data;
+  },
+
+  commentOnPost: async (postId: string, content: string): Promise<any> => {
+    const response = await api.post(`/feed/${postId}/comment`, { content });
+    showToast.success('Comentário adicionado!');
+    return response.data;
+  },
+
+  getPostComments: async (postId: string, page = 1, limit = 20): Promise<any> => {
+    const response = await api.get(`/feed/${postId}/comments?page=${page}&limit=${limit}`);
+    return response.data;
   },
 };

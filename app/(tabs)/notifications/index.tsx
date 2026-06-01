@@ -1,92 +1,82 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Card } from '@/components/ui';
+import { Card, SafeScreen, RefreshWrapper } from '@/components/ui';
 import { Bell, Trophy, AlertCircle, Calendar, TrendingUp, Flame, Award, CheckCircle2 } from 'lucide-react-native';
-
-const mockNotifications = [
-  {
-    id: '1',
-    category: 'social' as const,
-    type: 'surpassed' as const,
-    title: 'Você foi ultrapassado!',
-    message: 'Maria Santos agora está à sua frente no ranking.',
-    read: false,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    category: 'system' as const,
-    type: 'workout_reminder' as const,
-    title: 'Hora de treinar!',
-    message: 'Não esqueça de registrar seu treino hoje.',
-    read: false,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: '3',
-    category: 'event' as const,
-    type: 'event_invite' as const,
-    title: 'Convite para evento',
-    message: 'Você foi convidado para participar do Desafio Corporativo.',
-    read: true,
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-  },
-  {
-    id: '4',
-    category: 'recovery' as const,
-    type: 'weekend_recovery' as const,
-    title: 'Recuperação disponível',
-    message: 'Fim de semana disponível para recuperação de pontos.',
-    read: true,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: '5',
-    category: 'social' as const,
-    type: 'achievement_unlocked' as const,
-    title: 'Nova conquista!',
-    message: 'Você desbloqueou a conquista Guardião das Marés!',
-    read: true,
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-  },
-];
+import { useNotificationsStore } from '@/store';
 
 export default function NotificationsScreen() {
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const { notifications, unreadCount, isLoading, fetchNotifications, markAsRead, markAllAsRead, deleteNotification } = useNotificationsStore();
+  const [refreshing, setRefreshing] = useState(false);
 
-  const getIcon = (category: string, type: string) => {
-    switch (category) {
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchNotifications();
+    } catch (error) {
+      console.error('Error refreshing notifications:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await markAsRead(id);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllAsRead();
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteNotification(id);
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
+  const getIcon = (type: string) => {
+    switch (type) {
       case 'social':
         return <Flame size={24} color="#facc15" />;
       case 'system':
         return <Bell size={24} color="#10b981" />;
       case 'event':
         return <Calendar size={24} color="#3b82f6" />;
-      case 'recovery':
-        return <TrendingUp size={24} color="#a1a1aa" />;
       default:
         return <AlertCircle size={24} color="#ef4444" />;
     }
   };
 
-  const markAsRead = (id: string) => {
-    setNotifications(notifications.map(notif =>
-      notif.id === id ? { ...notif, read: true } : notif
-    ));
-  };
-
   return (
-    <ScrollView 
-      className="flex-1 bg-zinc-950"
-      showsVerticalScrollIndicator={false}
-    >
-      <View className="p-6 pt-12">
-        <View className="flex-row items-center justify-between mb-8">
-          <Text className="text-white font-extrabold text-3xl">Notificações</Text>
-          <TouchableOpacity activeOpacity={0.7}>
-            <Text className="text-emerald-500 font-semibold">Marcar todas como lidas</Text>
-          </TouchableOpacity>
-        </View>
+    <SafeScreen>
+      <RefreshWrapper
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="p-6">
+          <View className="flex-row items-center justify-between mb-8">
+            <Text className="text-white font-extrabold text-3xl">Notificações</Text>
+            {unreadCount > 0 && (
+              <TouchableOpacity onPress={handleMarkAllAsRead} activeOpacity={0.7}>
+                <Text className="text-emerald-500 font-semibold">Marcar todas como lidas</Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
         {notifications.length === 0 ? (
           <Card className="items-center py-16">
@@ -119,7 +109,7 @@ export default function NotificationsScreen() {
                       notification.category === 'recovery' ? 'bg-zinc-700' :
                       'bg-red-500/20'
                     }`}>
-                      {getIcon(notification.category, notification.type)}
+                      {getIcon(notification.type)}
                     </View>
                   </View>
                   <View className="flex-1">
@@ -146,6 +136,7 @@ export default function NotificationsScreen() {
           ))
         )}
       </View>
-    </ScrollView>
+    </RefreshWrapper>
+  </SafeScreen>
   );
 }

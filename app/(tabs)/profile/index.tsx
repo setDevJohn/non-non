@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useAuthStore } from '@/store';
 import { ACHIEVEMENTS } from '@/constants';
-import { Card } from '@/components/ui';
+import { Card, SafeScreen } from '@/components/ui';
 import { Trophy, Calendar, Target, Droplets, Award, LogOut, Flame } from 'lucide-react-native';
 
 export default function ProfileScreen() {
@@ -13,13 +13,14 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView 
-      className="flex-1 bg-zinc-950"
-      showsVerticalScrollIndicator={false}
-    >
-      <View className="p-6 pt-12">
-        {/* Profile Header */}
-        <Card className="mb-8 items-center py-10">
+    <SafeScreen>
+      <ScrollView 
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="p-6">
+          {/* Profile Header */}
+          <Card className="mb-8 items-center py-10">
           <View className="w-28 h-28 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 items-center justify-center mb-5">
             <Text className="text-white font-black text-5xl">
               {user?.name?.charAt(0)}
@@ -170,5 +171,6 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+  </SafeScreen>
   );
 }

@@ -1,6 +1,8 @@
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
+import { showToast } from '@/utils/toast';
 
-const API_BASE_URL = __DEV__ ? 'http://localhost:3000/api' : 'https://api.gymcompetition.com';
+const API_BASE_URL = __DEV__ ? 'http://192.168.0.6:3000' : 'https://api.gymcompetition.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -12,11 +14,14 @@ const api = axios.create({
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
-  (config) => {
-    // Add token from storage if available
-    const token = 'mock-token'; // Will be replaced with actual token from storage
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+  async (config) => {
+    try {
+      const token = await SecureStore.getItemAsync('accessToken');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error getting token from secure store:', error);
     }
     return config;
   },
@@ -28,12 +33,60 @@ api.interceptors.request.use(
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized - redirect to login
+      // Clear token and redirect to login
+      try {
+        await SecureStore.deleteItemAsync('accessToken');
+        showToast.error('Sessão expirada. Faça login novamente.');
+      } catch (e) {
+        console.error('Error clearing token:', e);
+      }
+    } else if (error.response) {
+      // Handle other HTTP errors
+      const errorMessage = error.response.data?.message || 'Ocorreu um erro na requisição';
+      const errors = error.response.data?.errors;
+      
+      if (errors && Array.isArray(errors) && errors.length > 0) {
+        showToast.error(errors[0]);
+      } else {
+        showToast.error(errorMessage);
+      }
+    } else if (error.request) {
+      // Network error
+      showToast.error('Erro de conexão. Verifique sua internet.');
+    } else {
+      // Other errors
+      showToast.error('Ocorreu um erro inesperado.');
     }
+    
     return Promise.reject(error);
   }
 );
+
+export const setAuthToken = async (token: string) => {
+  try {
+    await SecureStore.setItemAsync('accessToken', token);
+  } catch (error) {
+    console.error('Error saving token:', error);
+  }
+};
+
+export const clearAuthToken = async () => {
+  try {
+    await SecureStore.deleteItemAsync('accessToken');
+  } catch (error) {
+    console.error('Error clearing token:', error);
+  }
+};
+
+export const getAuthToken = async (): Promise<string | null> => {
+  try {
+    return await SecureStore.getItemAsync('accessToken');
+  } catch (error) {
+    console.error('Error getting token:', error);
+    return null;
+  }
+};
 
 export default api;

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { HydrationRecord, HydrationLog, AddHydrationData } from '@/types';
+import { hydrationService } from '@/services';
 
 interface HydrationState {
   todayRecord: HydrationRecord | null;
@@ -16,23 +17,8 @@ export const useHydrationStore = create<HydrationState>((set, get) => ({
   fetchTodayRecord: async () => {
     set({ isLoading: true });
     try {
-      // Mock data - will be replaced with API call
-      const today = new Date().toISOString().split('T')[0];
-      const mockRecord: HydrationRecord = {
-        id: '1',
-        userId: '1',
-        date: today,
-        amount: 1500,
-        goal: 2625, // 75kg * 35ml/kg
-        completed: false,
-        records: [
-          { id: '1', amount: 500, timestamp: new Date().toISOString() },
-          { id: '2', amount: 500, timestamp: new Date().toISOString() },
-          { id: '3', amount: 500, timestamp: new Date().toISOString() },
-        ],
-        createdAt: new Date().toISOString(),
-      };
-      set({ todayRecord: mockRecord, isLoading: false });
+      const record = await hydrationService.getTodayHydration();
+      set({ todayRecord: record, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -42,27 +28,11 @@ export const useHydrationStore = create<HydrationState>((set, get) => ({
   addHydration: async (data: AddHydrationData) => {
     set({ isLoading: true });
     try {
-      const state = get();
-      if (!state.todayRecord) return;
+      await hydrationService.addHydration(data);
       
-      const newLog: HydrationLog = {
-        id: Date.now().toString(),
-        amount: data.amount,
-        timestamp: new Date().toISOString(),
-      };
-      
-      const newAmount = state.todayRecord.amount + data.amount;
-      const completed = newAmount >= state.todayRecord.goal;
-      
-      set({
-        todayRecord: {
-          ...state.todayRecord,
-          amount: newAmount,
-          completed,
-          records: [...state.todayRecord.records, newLog],
-        },
-        isLoading: false,
-      });
+      // Refresh the record
+      const record = await hydrationService.getTodayHydration();
+      set({ todayRecord: record, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
       throw error;

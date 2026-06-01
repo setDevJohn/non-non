@@ -2,17 +2,29 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useEventStore } from '@/store';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, RefreshWrapper, SafeScreen } from '@/components/ui';
 import { Calendar, Users, Trophy, Plus, Clock, Zap } from 'lucide-react-native';
 
 export default function EventsScreen() {
   const router = useRouter();
   const { events, fetchEvents, isLoading } = useEventStore();
   const [activeTab, setActiveTab] = useState<'active' | 'pending' | 'completed'>('active');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchEvents();
+    } catch (error) {
+      console.error('Error refreshing events:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const filteredEvents = events.filter((event) => {
     switch (activeTab) {
@@ -34,21 +46,24 @@ export default function EventsScreen() {
   ];
 
   return (
-    <ScrollView 
-      className="flex-1 bg-zinc-950"
-      showsVerticalScrollIndicator={false}
-    >
-      <View className="p-6 pt-12">
-        {/* Header */}
-        <View className="flex-row items-center justify-between mb-8">
-          <Text className="text-white font-extrabold text-3xl">Eventos</Text>
-          <Button
-            title="Criar"
-            onPress={() => router.push('/(tabs)/events/create')}
-            size="sm"
-            icon={<Plus size={16} color="#fff" />}
-          />
-        </View>
+    <SafeScreen>
+      <RefreshWrapper
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="p-6">
+          {/* Header */}
+          <View className="flex-row items-center justify-between mb-8">
+            <Text className="text-white font-extrabold text-3xl">Eventos</Text>
+            <Button
+              title="Criar"
+              onPress={() => router.push('/(tabs)/events/create')}
+              size="sm"
+              icon={<Plus size={16} color="#fff" />}
+            />
+          </View>
 
         {/* Tabs */}
         <View className="flex-row gap-2 mb-6">
@@ -177,6 +192,7 @@ export default function EventsScreen() {
           ))
         )}
       </View>
-    </ScrollView>
+    </RefreshWrapper>
+  </SafeScreen>
   );
 }

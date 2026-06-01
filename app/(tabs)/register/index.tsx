@@ -5,8 +5,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { WORKOUT_TYPES } from '@/constants';
-import { Button, Card, Input } from '@/components/ui';
+import { Button, Card, ControlledInput, SafeScreen } from '@/components/ui';
 import { Dumbbell, Camera, Clock, CheckCircle, Flame } from 'lucide-react-native';
+import { workoutService } from '@/services';
 
 const workoutSchema = z.object({
   type: z.string(),
@@ -30,8 +31,11 @@ export default function RegisterScreen() {
 
   const onSubmit = async (data: WorkoutFormData) => {
     try {
-      // Mock workout registration
-      console.log('Workout registered:', data);
+      await workoutService.createWorkout({
+        type: selectedType as any,
+        duration: parseInt(data.duration),
+        notes: data.notes,
+      });
       router.back();
     } catch (error) {
       console.error('Workout registration error:', error);
@@ -57,23 +61,24 @@ export default function RegisterScreen() {
   }
 
   return (
-    <ScrollView 
-      className="flex-1 bg-zinc-950"
-      showsVerticalScrollIndicator={false}
-    >
-      <View className="p-6 pt-12">
-        {/* Header Card */}
-        <Card className="mb-8 p-6">
-          <View className="flex-row items-center justify-center mb-3">
-            <Flame size={32} color="#facc15" />
-            <Text className="text-white font-extrabold text-3xl ml-3">
-              Registrar Treino
+    <SafeScreen>
+      <ScrollView 
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="p-6">
+          {/* Header Card */}
+          <Card className="mb-8 p-6">
+            <View className="flex-row items-center justify-center mb-3">
+              <Flame size={32} color="#facc15" />
+              <Text className="text-white font-extrabold text-3xl ml-3">
+                Registrar Treino
+              </Text>
+            </View>
+            <Text className="text-zinc-400 text-center">
+              Apenas 1 treino válido por dia
             </Text>
-          </View>
-          <Text className="text-zinc-400 text-center">
-            Apenas 1 treino válido por dia
-          </Text>
-        </Card>
+          </Card>
 
         {/* Workout Type Selection */}
         <Text className="text-white font-bold text-lg mb-4">Tipo de Treino</Text>
@@ -114,7 +119,7 @@ export default function RegisterScreen() {
         </TouchableOpacity>
 
         {/* Duration Input */}
-        <Input
+        <ControlledInput
           label="Duração (minutos)"
           placeholder="60"
           control={control}
@@ -124,7 +129,7 @@ export default function RegisterScreen() {
         />
 
         {/* Notes Input */}
-        <Input
+        <ControlledInput
           label="Observações (Opcional)"
           placeholder="Como foi seu treino?"
           control={control}
@@ -142,5 +147,6 @@ export default function RegisterScreen() {
         />
       </View>
     </ScrollView>
+  </SafeScreen>
   );
 }

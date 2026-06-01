@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore, useEventStore, useHydrationStore } from '@/store';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, RefreshWrapper, SafeScreen } from '@/components/ui';
 import { Droplets, Trophy, TrendingUp, Bell, Plus, Flame, Zap } from 'lucide-react-native';
 
 export default function DashboardScreen() {
@@ -10,11 +10,26 @@ export default function DashboardScreen() {
   const { user } = useAuthStore();
   const { events, fetchEvents } = useEventStore();
   const { todayRecord, fetchTodayRecord } = useHydrationStore();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchEvents();
     fetchTodayRecord();
   }, [fetchEvents, fetchTodayRecord]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        fetchEvents(),
+        fetchTodayRecord(),
+      ]);
+    } catch (error) {
+      console.error('Error refreshing dashboard:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const currentEvent = events.find((e) => e.status === 'active');
   const hydrationProgress = todayRecord
@@ -22,28 +37,31 @@ export default function DashboardScreen() {
     : 0;
 
   return (
-    <ScrollView 
-      className="flex-1 bg-zinc-950"
-      showsVerticalScrollIndicator={false}
-    >
-      <View className="p-6 pt-12">
-        {/* Header */}
-        <View className="flex-row items-center justify-between mb-8">
-          <View>
-            <Text className="text-white font-extrabold text-3xl mb-1">
-              Olá, {user?.name?.split(' ')[0]}!
-            </Text>
-            <Text className="text-zinc-400 font-medium text-base">
-              Vamos treinar hoje?
-            </Text>
+    <SafeScreen>
+      <RefreshWrapper
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="p-6">
+          {/* Header */}
+          <View className="flex-row items-center justify-between mb-8">
+            <View>
+              <Text className="text-white font-extrabold text-3xl mb-1">
+                Olá, {user?.name?.split(' ')[0]}!
+              </Text>
+              <Text className="text-zinc-400 font-medium text-base">
+                Vamos treinar hoje?
+              </Text>
+            </View>
+            <TouchableOpacity 
+              onPress={() => router.push('/(tabs)/notifications')}
+              className="bg-zinc-900 p-3 rounded-2xl"
+            >
+              <Bell size={24} color="#a1a1aa" />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity 
-            onPress={() => router.push('/(tabs)/notifications')}
-            className="bg-zinc-900 p-3 rounded-2xl"
-          >
-            <Bell size={24} color="#a1a1aa" />
-          </TouchableOpacity>
-        </View>
 
         {/* Today's Summary Card */}
         <Card className="mb-6 p-5">
@@ -165,7 +183,8 @@ export default function DashboardScreen() {
             icon={<Droplets size={20} color="#fff" />}
           />
         </View>
-      </View>
-    </ScrollView>
+        </View>
+      </RefreshWrapper>
+    </SafeScreen>
   );
 }

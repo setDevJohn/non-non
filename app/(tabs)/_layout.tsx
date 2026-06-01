@@ -1,78 +1,56 @@
+import React, { useState } from 'react';
+import { View, TouchableOpacity, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router';
-import { Home, Calendar, Plus, Users, User, Bell } from 'lucide-react-native';
+import { Menu } from 'lucide-react-native';
 import { useAuthStore } from '@/store';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Footer } from '@/components/layout/Footer';
 
 export default function TabsLayout() {
   const { isAuthenticated } = useAuthStore();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const insets = useSafeAreaInsets();
 
   if (!isAuthenticated) {
     return null;
   }
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#10b981',
-        tabBarInactiveTintColor: '#71717a',
-        tabBarStyle: {
-          backgroundColor: '#09090b',
-          borderTopColor: '#27272a',
-          borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="dashboard"
-        options={{
-          title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="events"
-        options={{
-          title: 'Eventos',
-          tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="register"
-        options={{
-          title: 'Registrar',
-          tabBarIcon: ({ color, size }) => <Plus size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="feed"
-        options={{
-          title: 'Feed',
-          tabBarIcon: ({ color, size }) => <Users size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Perfil',
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="notifications"
-        options={{
-          title: 'Notificações',
-          tabBarIcon: ({ color, size }) => (
-  <Bell size={size} color={color} />
-),
-        }}
-      />
-    </Tabs>
+    <>
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      
+      <View className="flex-1 bg-zinc-950">
+        {/* Header with menu button */}
+        <View 
+          className="bg-zinc-900 border-b border-zinc-800 p-4 flex-row items-center"
+          style={{ paddingTop: insets.top + 8 }}
+        >
+          <TouchableOpacity onPress={() => setIsSidebarOpen(true)}>
+            <Menu size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text className="text-white font-extrabold text-xl ml-4">Gym Competition</Text>
+        </View>
+
+        {/* Content */}
+        <View className="flex-1 pb-16">
+          <Tabs
+            screenOptions={{
+              headerShown: false,
+              tabBarStyle: { display: 'none' },
+            }}
+          >
+            <Tabs.Screen name="dashboard" />
+            <Tabs.Screen name="events" />
+            <Tabs.Screen name="register" />
+            <Tabs.Screen name="ranking" />
+            <Tabs.Screen name="profile" />
+          </Tabs>
+        </View>
+
+        {/* Footer */}
+        <Footer />
+      </View>
+    </>
   );
 }

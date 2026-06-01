@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useEventStore } from '@/store';
-import { Input, Button, Card } from '@/components/ui';
+import { ControlledInput, Button, Card, SafeScreen } from '@/components/ui';
 
 const createEventSchema = z.object({
   name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
@@ -44,18 +44,19 @@ export default function CreateEventScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-zinc-950">
-      <View className="p-6">
-        <Card className="mb-8">
-          <Text className="text-white font-extrabold text-3xl text-center mb-2">
-            Criar Evento
-          </Text>
-          <Text className="text-zinc-400 text-center">
-            Organize uma competição fitness
-          </Text>
-        </Card>
+    <SafeScreen>
+      <ScrollView className="flex-1">
+        <View className="p-6">
+          <Card className="mb-8">
+            <Text className="text-white font-extrabold text-3xl text-center mb-2">
+              Criar Evento
+            </Text>
+            <Text className="text-zinc-400 text-center">
+              Organize uma competição fitness
+            </Text>
+          </Card>
 
-        <Input
+        <ControlledInput
           label="Nome do Evento"
           placeholder="Desafio Verão 2024"
           control={control}
@@ -63,7 +64,7 @@ export default function CreateEventScreen() {
           error={errors.name?.message}
         />
 
-        <Input
+        <ControlledInput
           label="Descrição"
           placeholder="Descreva o evento..."
           control={control}
@@ -73,7 +74,7 @@ export default function CreateEventScreen() {
           numberOfLines={4}
         />
 
-        <Input
+        <ControlledInput
           label="Data de Início"
           placeholder="01/01/2024"
           control={control}
@@ -81,7 +82,7 @@ export default function CreateEventScreen() {
           error={errors.startDate?.message}
         />
 
-        <Input
+        <ControlledInput
           label="Data de Fim"
           placeholder="31/01/2024"
           control={control}
@@ -89,7 +90,7 @@ export default function CreateEventScreen() {
           error={errors.endDate?.message}
         />
 
-        <Input
+        <ControlledInput
           label="Valor de Entrada (R$)"
           placeholder="50"
           control={control}
@@ -98,7 +99,7 @@ export default function CreateEventScreen() {
           keyboardType="number-pad"
         />
 
-        <Input
+        <ControlledInput
           label="Máximo de Participantes"
           placeholder="20"
           control={control}
@@ -111,9 +112,10 @@ export default function CreateEventScreen() {
           title="Criar Evento"
           onPress={handleSubmit(onSubmit)}
           loading={isLoading}
-          className="mt-6"
+          style={{ marginTop: 24 }}
         />
       </View>
     </ScrollView>
+  </SafeScreen>
   );
 }

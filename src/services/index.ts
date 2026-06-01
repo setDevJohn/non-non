@@ -4,3 +4,7 @@ export { eventService } from './eventService';
 export { workoutService } from './workoutService';
 export { hydrationService } from './hydrationService';
 export { feedService } from './feedService';
+export { userService } from './userService';
+export { badgesService } from './badgesService';
+export { notificationsService } from './notificationsService';
+export { rankingsService } from './rankingsService';
