@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuthStore, useHydrationStore } from '@/store';
-import { ControlledInput, Button, Card, SafeScreen } from '@/components/ui';
+import { ControlledInput, Button, Card, SafeScreen, Section } from '@/components/ui';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
@@ -80,128 +80,132 @@ export default function RegisterScreen() {
         className="flex-1"
       >
         <ScrollView
-          className="flex-1"
+          className="flex-1 bg-background"
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="p-6 pb-4">
+          <View className="px-6 pt-6 pb-4">
           <Card className="mb-8">
-            <Text className="text-white font-extrabold text-3xl text-center mb-2">
+            <Text className="text-foreground font-bold text-3xl text-center mb-2">
               Crie seu Perfil
             </Text>
-            <Text className="text-zinc-400 text-center">
+            <Text className="text-muted-foreground text-center">
               Comece sua jornada fitness competitiva
             </Text>
           </Card>
 
-          <ControlledInput
-            label="Nome"
-            placeholder="Seu nome completo"
-            control={control}
-            name="name"
-            error={errors.name?.message}
-          />
+          <Section title="Informações Pessoais">
+            <ControlledInput
+              label="Nome"
+              placeholder="Seu nome completo"
+              control={control}
+              name="name"
+              error={errors.name?.message}
+            />
 
-          <ControlledInput
-            label="Email"
-            placeholder="seu@email.com"
-            control={control}
-            name="email"
-            error={errors.email?.message}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
+            <ControlledInput
+              label="Email"
+              placeholder="seu@email.com"
+              control={control}
+              name="email"
+              error={errors.email?.message}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
 
-          <ControlledInput
-            label="Senha"
-            placeholder="••••••••"
-            control={control}
-            name="password"
-            error={errors.password?.message}
-            secureTextEntry
-          />
+            <ControlledInput
+              label="Senha"
+              placeholder="••••••••"
+              control={control}
+              name="password"
+              error={errors.password?.message}
+              secureTextEntry
+            />
+          </Section>
 
-          <ControlledInput
-            label="Altura (cm)"
-            placeholder="175"
-            control={control}
-            name="height"
-            error={errors.height?.message}
-            keyboardType="number-pad"
-          />
+          <Section title="Dados Físicos">
+            <ControlledInput
+              label="Altura (cm)"
+              placeholder="175"
+              control={control}
+              name="height"
+              error={errors.height?.message}
+              keyboardType="number-pad"
+            />
 
-          <ControlledInput
-            label="Peso (kg)"
-            placeholder="75"
-            control={control}
-            name="weight"
-            error={errors.weight?.message}
-            keyboardType="number-pad"
-          />
+            <ControlledInput
+              label="Peso (kg)"
+              placeholder="75"
+              control={control}
+              name="weight"
+              error={errors.weight?.message}
+              keyboardType="number-pad"
+            />
 
-          {estimatedGoal > 0 && (
-            <Card className="mb-4 bg-zinc-800">
-              <Text className="text-emerald-500 font-semibold text-center">
-                Meta diária estimada: {estimatedGoal}ml
-              </Text>
-            </Card>
-          )}
+            {estimatedGoal > 0 && (
+              <Card className="mb-4 bg-secondary">
+                <Text className="text-primary font-semibold text-center">
+                  Meta diária estimada: {estimatedGoal}ml
+                </Text>
+              </Card>
+            )}
 
-          <ControlledInput
-            label="Data de Nascimento"
-            placeholder="01/01/1990"
-            control={control}
-            name="birthDate"
-            error={errors.birthDate?.message}
-          />
+            <ControlledInput
+              label="Data de Nascimento"
+              placeholder="01/01/1990"
+              control={control}
+              name="birthDate"
+              error={errors.birthDate?.message}
+            />
+          </Section>
 
-          <Text className="text-white font-semibold mb-3 mt-4">
-            Meta de Hidratação
-          </Text>
+          <Section title="Meta de Hidratação">
+            <TouchableOpacity
+              className={`p-4 rounded-xl border-2 mb-3 ${
+                hydrationOption === '28ml/kg'
+                  ? 'border-primary bg-secondary'
+                  : 'border-border bg-card'
+              }`}
+              onPress={() => {
+                setHydrationOption('28ml/kg');
+                if (weight) {
+                  setEstimatedGoal(calculateDailyGoal(parseFloat(weight), '28ml/kg'));
+                }
+              }}
+              activeOpacity={0.7}
+            >
+              <Text className="text-foreground font-semibold">28ml/kg</Text>
+              <Text className="text-muted-foreground text-sm">Meta moderada</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            className={`p-4 rounded-2xl border-2 mb-3 ${
-              hydrationOption === '28ml/kg'
-                ? 'border-emerald-500 bg-zinc-800'
-                : 'border-zinc-700 bg-zinc-900'
-            }`}
-            onPress={() => {
-              setHydrationOption('28ml/kg');
-              if (weight) {
-                setEstimatedGoal(calculateDailyGoal(parseFloat(weight), '28ml/kg'));
-              }
-            }}
-          >
-            <Text className="text-white font-semibold">28ml/kg</Text>
-            <Text className="text-zinc-400 text-sm">Meta moderada</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className={`p-4 rounded-2xl border-2 mb-6 ${
-              hydrationOption === '35ml/kg'
-                ? 'border-emerald-500 bg-zinc-800'
-                : 'border-zinc-700 bg-zinc-900'
-            }`}
-            onPress={() => {
-              setHydrationOption('35ml/kg');
-              if (weight) {
-                setEstimatedGoal(calculateDailyGoal(parseFloat(weight), '35ml/kg'));
-              }
-            }}
-          >
-            <Text className="text-white font-semibold">35ml/kg</Text>
-            <Text className="text-zinc-400 text-sm">Recomendado</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              className={`p-4 rounded-xl border-2 mb-6 ${
+                hydrationOption === '35ml/kg'
+                  ? 'border-primary bg-secondary'
+                  : 'border-border bg-card'
+              }`}
+              onPress={() => {
+                setHydrationOption('35ml/kg');
+                if (weight) {
+                  setEstimatedGoal(calculateDailyGoal(parseFloat(weight), '35ml/kg'));
+                }
+              }}
+              activeOpacity={0.7}
+            >
+              <Text className="text-foreground font-semibold">35ml/kg</Text>
+              <Text className="text-muted-foreground text-sm">Recomendado</Text>
+            </TouchableOpacity>
+          </Section>
 
           <Button
             title="Criar Conta"
             onPress={handleSubmit(onSubmit)}
             loading={isLoading}
-            style={{ marginBottom: 16 }}
+            fullWidth
           />
 
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text className="text-zinc-500 text-center font-medium">
+          <TouchableOpacity onPress={() => router.back()} className="mt-6">
+            <Text className="text-muted-foreground text-center font-medium">
               Já tem conta? Entre
             </Text>
           </TouchableOpacity>

@@ -7,6 +7,7 @@ const spacing = {
   '2xl': 48,
   '3xl': 64,
   '4xl': 96,
+  '5xl': 128,
 } as const;
 
 export default spacing;

@@ -2,7 +2,7 @@ const typography = {
   sizes: {
     xs: 12,
     sm: 14,
-    md: 16,
+    base: 16,
     lg: 18,
     xl: 20,
     '2xl': 24,
@@ -17,6 +17,11 @@ const typography = {
     bold: '700',
     extrabold: '800',
     black: '900',
+  },
+  lineHeights: {
+    tight: 1.2,
+    normal: 1.5,
+    relaxed: 1.75,
   },
 } as const;
 

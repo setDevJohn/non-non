@@ -1,27 +1,39 @@
 import React from 'react';
-import { View, ViewStyle, ScrollView } from 'react-native';
+import { View, ViewStyle, ScrollView, TouchableOpacity } from 'react-native';
 import { cn } from '@/utils/cn';
 
 interface CardProps {
   children: React.ReactNode;
   className?: string;
   style?: ViewStyle;
+  variant?: 'default' | 'elevated' | 'interactive';
   scrollable?: boolean;
+  onPress?: () => void;
 }
 
 export const Card: React.FC<CardProps> = ({
   children,
   className,
   style,
+  variant = 'default',
   scrollable = false,
+  onPress,
 }) => {
-  const baseStyles = 'rounded-3xl bg-zinc-900 border border-zinc-800 p-4';
+  const baseStyles = 'rounded-xl border border-border bg-card p-4';
+  
+  const variantStyles = {
+    default: '',
+    elevated: 'shadow-sm',
+    interactive: 'active:opacity-80',
+  };
+  
+  const CardComponent = onPress ? TouchableOpacity : View;
   
   if (scrollable) {
     return (
       <ScrollView
         style={style}
-        className={cn(baseStyles, className)}
+        className={cn(baseStyles, variantStyles[variant], className)}
         showsVerticalScrollIndicator={false}
       >
         {children}
@@ -30,8 +42,14 @@ export const Card: React.FC<CardProps> = ({
   }
   
   return (
-    <View style={style} className={cn(baseStyles, className)}>
+    <CardComponent
+      style={style}
+      className={cn(baseStyles, variantStyles[variant], className)}
+      onPress={onPress}
+      activeOpacity={0.7}
+      disabled={!onPress}
+    >
       {children}
-    </View>
+    </CardComponent>
   );
 };

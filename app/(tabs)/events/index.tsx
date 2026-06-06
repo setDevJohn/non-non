@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useEventStore } from '@/store';
-import { Card, Button, RefreshWrapper, SafeScreen } from '@/components/ui';
-import { Calendar, Users, Trophy, Plus, Clock, Zap } from 'lucide-react-native';
+import { Card, Button, RefreshWrapper, SafeScreen, Badge, EmptyState } from '@/components/ui';
+import { Calendar, Plus, Clock, Zap } from 'lucide-react-native';
 
 export default function EventsScreen() {
   const router = useRouter();
@@ -54,18 +54,37 @@ export default function EventsScreen() {
     { key: 'cancelled' as const, label: 'Cancelados' },
   ];
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge variant="success">Em andamento</Badge>;
+      case 'waiting_confirmation':
+        return <Badge variant="warning">Aguardando Confirmação</Badge>;
+      case 'ready':
+        return <Badge variant="neutral">Pronto</Badge>;
+      case 'draft':
+        return <Badge variant="neutral">Rascunho</Badge>;
+      case 'finished':
+        return <Badge variant="neutral">Finalizado</Badge>;
+      case 'cancelled':
+        return <Badge variant="destructive">Cancelado</Badge>;
+      default:
+        return <Badge variant="neutral">{status}</Badge>;
+    }
+  };
+
   return (
     <SafeScreen>
       <RefreshWrapper
         onRefresh={onRefresh}
         refreshing={refreshing}
-        className="flex-1"
+        className="flex-1 bg-background"
         showsVerticalScrollIndicator={false}
       >
-        <View className="p-6 pb-4">
+        <View className="px-6 pt-6 pb-4">
           {/* Header */}
           <View className="flex-row items-center justify-between mb-8">
-            <Text className="text-white font-extrabold text-3xl">Eventos</Text>
+            <Text className="text-foreground font-bold text-3xl">Eventos</Text>
             <Button
               title="Criar"
               onPress={() => router.push('/(tabs)/events/create')}
@@ -80,15 +99,16 @@ export default function EventsScreen() {
             <TouchableOpacity
               key={tab.key}
               onPress={() => setActiveTab(tab.key)}
-              className={`flex-1 py-4 rounded-2xl ${
+              className={`flex-1 py-4 rounded-xl ${
                 activeTab === tab.key
-                  ? 'bg-emerald-500'
-                  : 'bg-zinc-800'
+                  ? 'bg-primary'
+                  : 'bg-secondary'
               }`}
+              activeOpacity={0.7}
             >
               <Text
                 className={`text-center font-semibold ${
-                  activeTab === tab.key ? 'text-white' : 'text-zinc-400'
+                  activeTab === tab.key ? 'text-white' : 'text-muted-foreground'
                 }`}
               >
                 {tab.label}
@@ -99,15 +119,11 @@ export default function EventsScreen() {
 
         {/* Events List */}
         {filteredEvents.length === 0 ? (
-          <Card className="items-center py-16">
-            <Calendar size={72} color="#3f3f46" />
-            <Text className="text-zinc-400 font-semibold text-lg mt-4">
-              Nenhum evento encontrado
-            </Text>
-            <Text className="text-zinc-500 text-sm mt-2">
-              Crie um novo evento para começar
-            </Text>
-          </Card>
+          <EmptyState
+            icon={<Calendar size={72} color="#3f3f46" />}
+            title="Nenhum evento encontrado"
+            description="Crie um novo evento para começar"
+          />
         ) : (
           filteredEvents.map((event) => (
             <TouchableOpacity
@@ -116,21 +132,22 @@ export default function EventsScreen() {
               activeOpacity={0.7}
             >
               <Card 
+                variant="interactive"
                 className={`mb-4 p-5 ${
-                  event.status === 'active' ? 'border-l-4 border-l-emerald-500' : ''
+                  event.status === 'active' ? 'border-l-4 border-l-primary' : ''
                 }`}
               >
                 <View className="flex-row items-start justify-between mb-3">
                   <View className="flex-1">
-                    <Text className="text-white font-extrabold text-xl mb-1">
+                    <Text className="text-foreground font-bold text-xl mb-1">
                       {event.name}
                     </Text>
-                    <Text className="text-zinc-400 text-sm leading-relaxed">
+                    <Text className="text-muted-foreground text-sm leading-relaxed">
                       {event.description}
                     </Text>
                   </View>
                   {event.status === 'active' && (
-                    <View className="bg-emerald-500/20 p-2 rounded-xl ml-3">
+                    <View className="bg-primary/20 p-2 rounded-xl ml-3">
                       <Zap size={20} color="#10b981" />
                     </View>
                   )}
@@ -138,68 +155,23 @@ export default function EventsScreen() {
                 
                 <View className="flex-row gap-6 mb-4">
                   <View className="flex-row items-center">
-                    <View className="bg-zinc-800 p-2 rounded-xl mr-2">
-                      <Trophy size={18} color="#facc15" />
-                    </View>
-                    <View>
-                      <Text className="text-yellow-400 font-black text-lg">
+                    <View className="bg-secondary p-2 rounded-xl mr-2">
+                      <Text className="text-warning font-bold text-lg">
                         R$ {event.entryFee || 0}
                       </Text>
-                      <Text className="text-zinc-500 text-xs">Entrada</Text>
                     </View>
+                    <Text className="text-muted-foreground text-xs">Entrada</Text>
                   </View>
                 </View>
 
-                <View className="flex-row justify-between items-center pt-4 border-t border-zinc-800">
+                <View className="flex-row justify-between items-center pt-4 border-t border-border">
                   <View className="flex-row items-center">
                     <Clock size={16} color="#a1a1aa" />
-                    <Text className="text-zinc-400 text-sm ml-2">
+                    <Text className="text-muted-foreground text-sm ml-2">
                       {new Date(event.endDate).toLocaleDateString('pt-BR')}
                     </Text>
                   </View>
-                  <View
-                    className={`px-3 py-1 rounded-full ${
-                      event.status === 'active'
-                        ? 'bg-emerald-500/20'
-                        : event.status === 'waiting_confirmation'
-                        ? 'bg-yellow-500/20'
-                        : event.status === 'ready'
-                        ? 'bg-blue-500/20'
-                        : event.status === 'draft'
-                        ? 'bg-zinc-700/50'
-                        : event.status === 'finished'
-                        ? 'bg-zinc-800'
-                        : 'bg-red-500/20'
-                    }`}
-                  >
-                    <Text
-                      className={`text-xs font-semibold ${
-                        event.status === 'active'
-                          ? 'text-emerald-500'
-                          : event.status === 'waiting_confirmation'
-                          ? 'text-yellow-400'
-                          : event.status === 'ready'
-                          ? 'text-blue-400'
-                          : event.status === 'draft'
-                          ? 'text-zinc-400'
-                          : event.status === 'finished'
-                          ? 'text-zinc-400'
-                          : 'text-red-400'
-                      }`}
-                    >
-                      {event.status === 'active'
-                        ? 'Em andamento'
-                        : event.status === 'waiting_confirmation'
-                        ? 'Aguardando Confirmação'
-                        : event.status === 'ready'
-                        ? 'Pronto'
-                        : event.status === 'draft'
-                        ? 'Rascunho'
-                        : event.status === 'finished'
-                        ? 'Finalizado'
-                        : 'Cancelado'}
-                    </Text>
-                  </View>
+                  {getStatusBadge(event.status)}
                 </View>
               </Card>
             </TouchableOpacity>

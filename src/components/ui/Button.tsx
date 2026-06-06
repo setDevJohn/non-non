@@ -1,24 +1,26 @@
 import React from 'react';
-import { TouchableOpacity, Text, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator, View, ViewStyle, TextStyle } from 'react-native';
 import { cn } from '@/utils/cn';
+import colors from '@/theme/colors';
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive';
+  size?: 'sm' | 'md' | 'lg' | 'icon';
   disabled?: boolean;
   loading?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
+  fullWidth?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
-  variant = 'primary',
+  variant = 'default',
   size = 'md',
   disabled = false,
   loading = false,
@@ -26,36 +28,42 @@ export const Button: React.FC<ButtonProps> = ({
   textStyle,
   icon,
   iconPosition = 'left',
+  fullWidth = false,
 }) => {
-  const baseStyles = 'rounded-2xl items-center justify-center flex-row';
+  const baseStyles = 'rounded-xl items-center justify-center flex-row';
   
   const variantStyles = {
-    primary: 'bg-emerald-500',
-    secondary: 'bg-zinc-800',
-    outline: 'border-2 border-emerald-500 bg-transparent',
+    default: 'bg-primary',
+    secondary: 'bg-secondary',
+    outline: 'border-2 border-primary bg-transparent',
     ghost: 'bg-transparent',
+    destructive: 'bg-destructive',
   };
   
   const sizeStyles = {
-    sm: 'py-2 px-4',
-    md: 'py-3 px-6',
-    lg: 'py-4 px-8',
+    sm: 'h-9 px-3',
+    md: 'h-12 px-4',
+    lg: 'h-14 px-6',
+    icon: 'h-10 w-10',
   };
   
   const textVariantStyles = {
-    primary: 'text-white font-semibold',
+    default: 'text-white font-semibold',
     secondary: 'text-white font-semibold',
-    outline: 'text-emerald-500 font-semibold',
-    ghost: 'text-emerald-500 font-semibold',
+    outline: 'text-primary font-semibold',
+    ghost: 'text-primary font-semibold',
+    destructive: 'text-white font-semibold',
   };
   
   const textSizeStyles = {
     sm: 'text-sm',
     md: 'text-base',
     lg: 'text-lg',
+    icon: '',
   };
   
   const disabledStyle = disabled || loading ? 'opacity-50' : '';
+  const fullWidthStyle = fullWidth ? 'w-full' : '';
   
   return (
     <TouchableOpacity
@@ -66,25 +74,42 @@ export const Button: React.FC<ButtonProps> = ({
         baseStyles,
         variantStyles[variant],
         sizeStyles[size],
-        disabledStyle
+        disabledStyle,
+        fullWidthStyle
       )}
+      activeOpacity={0.7}
+      accessibilityLabel={title}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: disabled || loading }}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'outline' || variant === 'ghost' ? '#10b981' : '#fff'} />
+        <ActivityIndicator 
+          color={variant === 'outline' || variant === 'ghost' ? colors.primary.DEFAULT : '#fff'} 
+          size={size === 'sm' ? 'small' : size === 'lg' ? 'large' : undefined}
+        />
       ) : (
         <>
-          {icon && iconPosition === 'left' && <>{icon}</>}
+          {icon && iconPosition === 'left' && (
+            <View className="mr-2">
+              {icon}
+            </View>
+          )}
           <Text
             className={cn(
               textVariantStyles[variant],
               textSizeStyles[size],
-              icon && 'mx-2'
+              icon && iconPosition === 'right' && 'mr-2',
+              icon && iconPosition === 'left' && 'ml-2'
             )}
             style={textStyle}
           >
             {title}
           </Text>
-          {icon && iconPosition === 'right' && <>{icon}</>}
+          {icon && iconPosition === 'right' && (
+            <View className="ml-2">
+              {icon}
+            </View>
+          )}
         </>
       )}
     </TouchableOpacity>

@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuthStore } from '@/store';
-import { ControlledInput, Button, Card, SafeScreen } from '@/components/ui';
-import { Flame, Dumbbell } from 'lucide-react-native';
+import { ControlledInput, Button, SafeScreen } from '@/components/ui';
+import { Flame } from 'lucide-react-native';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -50,11 +50,11 @@ export default function LoginScreen() {
         className="flex-1"
       >
         <ScrollView
-          className="flex-1"
+          className="flex-1 bg-background"
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="flex-1 justify-center p-6 pb-4">
+          <View className="flex-1 justify-center px-6 pt-6 pb-4">
           {/* Header */}
           <View className="items-center mt-6 mb-10">
             <Image
@@ -87,7 +87,7 @@ export default function LoginScreen() {
             title="Entrar"
             onPress={handleSubmit(onSubmit)}
             loading={isLoading}
-            style={{ marginTop: 24 }}
+            fullWidth
             icon={<Flame size={20} color="#fff" />}
           />
 
@@ -96,7 +96,7 @@ export default function LoginScreen() {
             onPress={() => router.push('/(auth)/register')}
             activeOpacity={0.7}
           >
-            <Text className="font-semibold text-emerald-500 text-center">
+            <Text className="font-semibold text-primary text-center text-base">
               Não tem conta? Cadastre-se
             </Text>
           </TouchableOpacity>

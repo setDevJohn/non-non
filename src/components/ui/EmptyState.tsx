@@ -19,12 +19,16 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <View className={cn('flex-1 items-center justify-center p-8', className)}>
-      {icon && <View className="mb-4">{icon}</View>}
-      <Text className="text-white font-extrabold text-xl text-center mb-2">
+      {icon && (
+        <View className="mb-4 opacity-50">
+          {icon}
+        </View>
+      )}
+      <Text className="text-foreground font-semibold text-lg text-center mb-2">
         {title}
       </Text>
       {description && (
-        <Text className="text-zinc-400 text-center mb-6">
+        <Text className="text-muted-foreground text-center mb-6 text-sm">
           {description}
         </Text>
       )}
