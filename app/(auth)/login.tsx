@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +17,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading, onboardingCompleted } = useAuthStore();
   
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -31,7 +31,13 @@ export default function LoginScreen() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login(data);
-      router.replace('/(tabs)/dashboard');
+      
+      // Check if onboarding is completed
+      if (!onboardingCompleted) {
+        router.replace('/(auth)/onboarding');
+      } else {
+        router.replace('/(tabs)/dashboard');
+      }
     } catch (error) {
       console.error('Login error:', error);
     }
@@ -39,24 +45,22 @@ export default function LoginScreen() {
 
   return (
     <SafeScreen>
-      <ScrollView 
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
-        showsVerticalScrollIndicator={false}
       >
-        <View className="flex-1 justify-center p-6">
+        <ScrollView
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="flex-1 justify-center p-6 pb-4">
           {/* Header */}
-          <View className="items-center mb-10">
-            <View className="bg-gradient-to-br from-emerald-500 to-emerald-700 p-6 rounded-full mb-6">
-              <Dumbbell size={48} color="#fff" />
-            </View>
-            <Card className="items-center py-6 px-8">
-              <Text className="text-white font-extrabold text-3xl text-center mb-2">
-                Gym Competition
-              </Text>
-              <Text className="text-zinc-400 text-center">
-                Entre para continuar sua jornada fitness
-              </Text>
-            </Card>
+          <View className="items-center mt-6 mb-10">
+            <Image
+              source={require('../../assets/dark-mode-transparent-logo.png')}
+              className="w-[220px] h-[220px]"
+            />
           </View>
 
           {/* Form */}
@@ -92,12 +96,13 @@ export default function LoginScreen() {
             onPress={() => router.push('/(auth)/register')}
             activeOpacity={0.7}
           >
-            <Text className="text-emerald-500 text-center font-semibold">
+            <Text className="font-semibold text-emerald-500 text-center">
               Não tem conta? Cadastre-se
             </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeScreen>
   );
 }

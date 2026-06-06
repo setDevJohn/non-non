@@ -3,11 +3,11 @@ export interface User {
   name: string;
   email: string;
   password: string;
-  height: number; // cm
-  weight: number; // kg
+  heightCm: number; // cm
+  weightKg: number; // kg
   birthDate: string;
-  hydrationOption: '28ml/kg' | '35ml/kg';
-  photo?: string;
+  hydrationMode: '28ml' | '35ml';
+  photoUrl?: string;
   daysTrainedMonth: number;
   daysTrainedTotal: number;
   hydrationGoalsCompleted: number;
@@ -20,11 +20,11 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  height: number;
-  weight: number;
-  birthDate: string;
-  hydrationOption: '28ml/kg' | '35ml/kg';
-  photo?: string;
+  heightCm?: number;
+  weightKg?: number;
+  birthDate?: string;
+  hydrationOption?: '28ml/kg' | '35ml/kg';
+  photoUrl?: string;
 }
 
 export interface LoginData {

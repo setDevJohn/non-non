@@ -21,11 +21,11 @@ export const Input: React.FC<InputProps> = ({
   return (
     <View style={containerStyle} className={containerClassName}>
       {label && (
-        <Text className="text-zinc-400 font-medium mb-2 text-sm">{label}</Text>
+        <Text className="mb-2 font-medium text-zinc-400 text-sm">{label}</Text>
       )}
       <TextInput
         className={cn(
-          'bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-white placeholder:text-zinc-500',
+          'bg-zinc-800 mb-2 px-4 py-3 border border-zinc-700 rounded-2xl text-white placeholder:text-zinc-500',
           error && 'border-red-500',
           className
         )}
@@ -34,7 +34,7 @@ export const Input: React.FC<InputProps> = ({
         {...props}
       />
       {error && (
-        <Text className="text-red-500 text-sm mt-1">{error}</Text>
+        <Text className="mt-1 text-red-500 text-sm">{error}</Text>
       )}
     </View>
   );

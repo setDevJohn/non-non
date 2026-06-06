@@ -19,7 +19,7 @@ export const hydrationService = {
   },
 
   addHydration: async (data: AddHydrationData): Promise<any> => {
-    const response = await api.post('/hydration', data);
+    const response = await api.post('/hydration', { amountMl: data.amountMl });
     showToast.success('Hidratação registrada!');
     return response.data;
   },

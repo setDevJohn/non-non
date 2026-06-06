@@ -8,7 +8,7 @@ import { Calendar, Users, Trophy, Plus, Clock, Zap } from 'lucide-react-native';
 export default function EventsScreen() {
   const router = useRouter();
   const { events, fetchEvents, isLoading } = useEventStore();
-  const [activeTab, setActiveTab] = useState<'active' | 'pending' | 'completed'>('active');
+  const [activeTab, setActiveTab] = useState<'active' | 'pending' | 'draft' | 'completed'>('active');
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -32,6 +32,8 @@ export default function EventsScreen() {
         return event.status === 'active';
       case 'pending':
         return event.status === 'pending';
+      case 'draft':
+        return event.status === 'draft';
       case 'completed':
         return event.status === 'completed';
       default:
@@ -42,6 +44,7 @@ export default function EventsScreen() {
   const tabs = [
     { key: 'active' as const, label: 'Ativos' },
     { key: 'pending' as const, label: 'Pendentes' },
+    { key: 'draft' as const, label: 'Rascunhos' },
     { key: 'completed' as const, label: 'Finalizados' },
   ];
 
@@ -53,7 +56,7 @@ export default function EventsScreen() {
         className="flex-1"
         showsVerticalScrollIndicator={false}
       >
-        <View className="p-6">
+        <View className="p-6 pb-4">
           {/* Header */}
           <View className="flex-row items-center justify-between mb-8">
             <Text className="text-white font-extrabold text-3xl">Eventos</Text>
@@ -137,7 +140,7 @@ export default function EventsScreen() {
                         {event.participants.length}
                       </Text>
                       <Text className="text-zinc-500 text-xs">
-                        / {event.maxParticipants}
+                        Participantes
                       </Text>
                     </View>
                   </View>
@@ -167,6 +170,8 @@ export default function EventsScreen() {
                         ? 'bg-emerald-500/20'
                         : event.status === 'pending'
                         ? 'bg-yellow-500/20'
+                        : event.status === 'draft'
+                        ? 'bg-zinc-700/50'
                         : 'bg-zinc-800'
                     }`}
                   >
@@ -176,6 +181,8 @@ export default function EventsScreen() {
                           ? 'text-emerald-500'
                           : event.status === 'pending'
                           ? 'text-yellow-400'
+                          : event.status === 'draft'
+                          ? 'text-zinc-400'
                           : 'text-zinc-400'
                       }`}
                     >
@@ -183,6 +190,8 @@ export default function EventsScreen() {
                         ? 'Em andamento'
                         : event.status === 'pending'
                         ? 'Aguardando'
+                        : event.status === 'draft'
+                        ? 'Rascunho'
                         : 'Finalizado'}
                     </Text>
                   </View>

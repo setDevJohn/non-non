@@ -4,10 +4,8 @@ export interface Event {
   description: string;
   startDate: string;
   endDate: string;
-  entryValue: number;
-  maxParticipants: number;
-  isPublic: boolean;
-  status: 'pending' | 'active' | 'completed';
+  entryFee: number;
+  status: 'draft' | 'pending' | 'active' | 'completed';
   participants: Participant[];
   admins: string[]; // user IDs
   createdBy: string;
@@ -25,10 +23,8 @@ export interface Participant {
 
 export interface CreateEventData {
   name: string;
-  description: string;
+  description?: string;
   startDate: string;
   endDate: string;
-  entryValue: number;
-  maxParticipants: number;
-  isPublic: boolean;
+  entryFee?: number;
 }

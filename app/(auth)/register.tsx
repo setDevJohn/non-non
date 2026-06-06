@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,17 +11,17 @@ const registerSchema = z.object({
   name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
-  height: z.string().min(2, 'Altura inválida'),
-  weight: z.string().min(2, 'Peso inválido'),
-  birthDate: z.string().min(10, 'Data de nascimento inválida'),
-  hydrationOption: z.enum(['28ml/kg', '35ml/kg']),
+  heightCm: z.string().optional(),
+  weightKg: z.string().optional(),
+  birthDate: z.string().optional(),
+  hydrationOption: z.enum(['28ml/kg', '35ml/kg']).optional(),
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { register: registerUser, isLoading } = useAuthStore();
+  const { register: registerUser, isLoading, onboardingCompleted } = useAuthStore();
   const { calculateDailyGoal } = useHydrationStore();
   const [hydrationOption, setHydrationOption] = useState<'28ml/kg' | '35ml/kg'>('35ml/kg');
   const [estimatedGoal, setEstimatedGoal] = useState(0);
@@ -38,30 +38,36 @@ export default function RegisterScreen() {
       name: 'Jhony',
       email: 'jhony00._@hotmail.com',
       password: '123456',
-      height: '174',
-      weight: '96',
+      heightCm: '174',
+      weightKg: '96',
       birthDate: '06-03-2000',
       hydrationOption: '35ml/kg',
     },
   });
 
-  const weight = watch('weight');
+  const weightKg = watch('weightKg');
 
   React.useEffect(() => {
-    if (weight) {
-      const goal = calculateDailyGoal(parseFloat(weight), hydrationOption);
+    if (weightKg) {
+      const goal = calculateDailyGoal(parseFloat(weightKg), hydrationOption);
       setEstimatedGoal(goal);
     }
-  }, [weight, hydrationOption, calculateDailyGoal]);
+  }, [weightKg, hydrationOption, calculateDailyGoal]);
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       await registerUser({
         ...data,
-        height: parseFloat(data.height),
-        weight: parseFloat(data.weight),
+        heightCm: data.heightCm ? parseFloat(data.heightCm) : undefined,
+        weightKg: data.weightKg ? parseFloat(data.weightKg) : undefined,
       });
-      router.replace('/(tabs)/dashboard');
+      
+      // Check if onboarding is completed
+      if (!onboardingCompleted) {
+        router.replace('/(auth)/onboarding');
+      } else {
+        router.replace('/(tabs)/dashboard');
+      }
     } catch (error) {
       console.error('Register error:', error);
     }
@@ -69,8 +75,16 @@ export default function RegisterScreen() {
 
   return (
     <SafeScreen>
-      <ScrollView className="flex-1">
-        <View className="p-6">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
+      >
+        <ScrollView
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="p-6 pb-4">
           <Card className="mb-8">
             <Text className="text-white font-extrabold text-3xl text-center mb-2">
               Crie seu Perfil
@@ -111,8 +125,8 @@ export default function RegisterScreen() {
             label="Altura (cm)"
             placeholder="175"
             control={control}
-            name="height"
-            error={errors.height?.message}
+            name="heightCm"
+            error={errors.heightCm?.message}
             keyboardType="number-pad"
           />
 
@@ -120,8 +134,8 @@ export default function RegisterScreen() {
             label="Peso (kg)"
             placeholder="75"
             control={control}
-            name="weight"
-            error={errors.weight?.message}
+            name="weightKg"
+            error={errors.weightKg?.message}
             keyboardType="number-pad"
           />
 
@@ -153,8 +167,8 @@ export default function RegisterScreen() {
             }`}
             onPress={() => {
               setHydrationOption('28ml/kg');
-              if (weight) {
-                setEstimatedGoal(calculateDailyGoal(parseFloat(weight), '28ml/kg'));
+              if (weightKg) {
+                setEstimatedGoal(calculateDailyGoal(parseFloat(weightKg), '28ml/kg'));
               }
             }}
           >
@@ -170,8 +184,8 @@ export default function RegisterScreen() {
             }`}
             onPress={() => {
               setHydrationOption('35ml/kg');
-              if (weight) {
-                setEstimatedGoal(calculateDailyGoal(parseFloat(weight), '35ml/kg'));
+              if (weightKg) {
+                setEstimatedGoal(calculateDailyGoal(parseFloat(weightKg), '35ml/kg'));
               }
             }}
           >
@@ -193,6 +207,7 @@ export default function RegisterScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeScreen>
   );
 }

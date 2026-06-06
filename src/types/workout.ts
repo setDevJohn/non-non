@@ -4,19 +4,21 @@ export interface Workout {
   id: string;
   userId: string;
   eventId?: string;
-  photo?: string;
-  type: WorkoutType;
+  imageUrl?: string;
+  workoutType: WorkoutType;
   duration: number; // minutes
   notes?: string;
+  workoutDate?: string;
   date: string;
   points: number;
   createdAt: string;
 }
 
 export interface CreateWorkoutData {
-  photo?: string;
-  type: WorkoutType;
+  imageUrl?: string;
+  workoutType: WorkoutType;
   duration: number;
   notes?: string;
+  workoutDate?: string;
   eventId?: string;
 }

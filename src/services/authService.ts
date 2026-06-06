@@ -10,8 +10,6 @@ export const authService = {
     // Store token securely
     await setAuthToken(accessToken);
     
-    showToast.success('Login realizado com sucesso!');
-    
     return { accessToken, userId, email, name };
   },
 
@@ -29,7 +27,6 @@ export const authService = {
 
   logout: async (): Promise<void> => {
     await clearAuthToken();
-    showToast.info('Você saiu da conta.');
   },
 
   getCurrentUser: async () => {

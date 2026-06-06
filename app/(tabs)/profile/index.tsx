@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useAuthStore } from '@/store';
 import { ACHIEVEMENTS } from '@/constants';
 import { Card, SafeScreen } from '@/components/ui';
-import { Trophy, Calendar, Target, Droplets, Award, LogOut, Flame } from 'lucide-react-native';
+import { Trophy, Calendar, Target, Droplets, Award, LogOut, Flame, RefreshCw } from 'lucide-react-native';
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, clearOnboardingCache } = useAuthStore();
 
   const handleLogout = () => {
     logout();
@@ -18,7 +18,7 @@ export default function ProfileScreen() {
         className="flex-1"
         showsVerticalScrollIndicator={false}
       >
-        <View className="p-6">
+        <View className="p-6 pb-4">
           {/* Profile Header */}
           <Card className="mb-8 items-center py-10">
           <View className="w-28 h-28 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 items-center justify-center mb-5">
@@ -69,7 +69,7 @@ export default function ProfileScreen() {
               <Calendar size={28} color="#a1a1aa" />
             </View>
             <Text className="text-white font-bold text-xl">
-              {user?.height}cm
+              {user?.heightCm}cm
             </Text>
             <Text className="text-zinc-400 text-sm font-medium">Altura</Text>
           </Card>
@@ -78,7 +78,7 @@ export default function ProfileScreen() {
               <Target size={28} color="#a1a1aa" />
             </View>
             <Text className="text-white font-bold text-xl">
-              {user?.weight}kg
+              {user?.weightKg}kg
             </Text>
             <Text className="text-zinc-400 text-sm font-medium">Peso</Text>
           </Card>
@@ -160,7 +160,7 @@ export default function ProfileScreen() {
 
         {/* Logout Button */}
         <TouchableOpacity onPress={handleLogout} activeOpacity={0.7}>
-          <Card className="bg-red-500/10 border-red-500/30 py-5">
+          <Card className="bg-red-500/10 mt-4 border-red-500/30 py-5">
             <View className="flex-row items-center justify-center">
               <LogOut size={20} color="#ef4444" />
               <Text className="text-red-500 font-semibold text-center ml-2">

@@ -96,7 +96,7 @@ export default function FeedScreen() {
         className="flex-1"
         showsVerticalScrollIndicator={false}
       >
-        <View className="p-6">
+        <View className="p-6 pb-4">
           <Text className="text-white font-extrabold text-3xl mb-6">Feed Social</Text>
 
         {posts.length === 0 ? (

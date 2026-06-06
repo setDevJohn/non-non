@@ -16,5 +16,5 @@ export interface HydrationLog {
 }
 
 export interface AddHydrationData {
-  amount: number;
+  amountMl: number;
 }
