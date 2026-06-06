@@ -39,11 +39,11 @@ export interface Comment {
   userId: string;
   userName: string;
   userPhoto?: string;
-  text: string;
+  content: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateCommentData {
-  postId: string;
-  text: string;
+  content: string;
 }

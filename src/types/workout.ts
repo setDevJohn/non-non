@@ -10,15 +10,23 @@ export interface Workout {
   notes?: string;
   workoutDate?: string;
   date: string;
-  points: number;
+  pointsEarned: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateWorkoutData {
-  imageUrl?: string;
-  workoutType: WorkoutType;
+  workoutType: string;
   duration: number;
   notes?: string;
+  imageUrl?: string;
   workoutDate?: string;
   eventId?: string;
+}
+
+export interface WorkoutStats {
+  totalWorkouts: number;
+  totalDuration: number;
+  totalPoints: number;
+  averageDuration: number;
 }

@@ -1,5 +1,5 @@
 import api from './api';
-import { User } from '@/types';
+import { User, UpdateUserData, UserStats } from '@/types';
 import { showToast } from '@/utils/toast';
 
 export const userService = {
@@ -8,13 +8,13 @@ export const userService = {
     return response.data;
   },
 
-  updateMe: async (data: Partial<User>): Promise<User> => {
+  updateMe: async (data: UpdateUserData): Promise<User> => {
     const response = await api.patch('/users/me', data);
     showToast.success('Perfil atualizado com sucesso!');
     return response.data;
   },
 
-  getMyStats: async (): Promise<any> => {
+  getMyStats: async (): Promise<UserStats> => {
     const response = await api.get('/users/me/stats');
     return response.data;
   },

@@ -7,6 +7,25 @@ import { Trophy, Calendar, Target, Droplets, Award, LogOut, Flame, RefreshCw } f
 
 export default function ProfileScreen() {
   const { user, logout, clearOnboardingCache } = useAuthStore();
+  const [userStats, setUserStats] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    const fetchUserStats = async () => {
+      try {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/me/stats`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        setUserStats(data);
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+      }
+    };
+
+    fetchUserStats();
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -37,7 +56,7 @@ export default function ProfileScreen() {
                 <Flame size={24} color="#10b981" />
               </View>
               <Text className="text-emerald-500 font-black text-2xl">
-                {user?.totalPoints || 0}
+                {userStats?.totalPoints || 0}
               </Text>
               <Text className="text-zinc-400 text-sm font-medium">Pontos</Text>
             </View>
@@ -46,16 +65,16 @@ export default function ProfileScreen() {
                 <Calendar size={24} color="#a1a1aa" />
               </View>
               <Text className="text-white font-black text-2xl">
-                {user?.daysTrainedMonth || 0}
+                {userStats?.currentStreak || 0}
               </Text>
-              <Text className="text-zinc-400 text-sm font-medium">Dias/Mês</Text>
+              <Text className="text-zinc-400 text-sm font-medium">Sequência</Text>
             </View>
             <View className="items-center">
               <View className="bg-zinc-800 p-3 rounded-2xl mb-2">
                 <Award size={24} color="#a1a1aa" />
               </View>
               <Text className="text-white font-black text-2xl">
-                {user?.daysTrainedTotal || 0}
+                {userStats?.totalWorkouts || 0}
               </Text>
               <Text className="text-zinc-400 text-sm font-medium">Total</Text>
             </View>
@@ -87,9 +106,9 @@ export default function ProfileScreen() {
               <Droplets size={28} color="#a1a1aa" />
             </View>
             <Text className="text-white font-bold text-xl">
-              {user?.hydrationGoalsCompleted || 0}
+              {user?.hydrationGoalMl}ml
             </Text>
-            <Text className="text-zinc-400 text-sm font-medium">Metas</Text>
+            <Text className="text-zinc-400 text-sm font-medium">Meta Diária</Text>
           </Card>
         </View>
 

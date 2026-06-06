@@ -1,24 +1,15 @@
+export type EventStatus = 'draft' | 'waiting_confirmation' | 'ready' | 'active' | 'finished' | 'cancelled';
+
 export interface Event {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   startDate: string;
   endDate: string;
+  status: EventStatus;
   entryFee: number;
-  status: 'draft' | 'pending' | 'active' | 'completed';
-  participants: Participant[];
-  admins: string[]; // user IDs
-  createdBy: string;
-  prizePool?: number;
   createdAt: string;
-}
-
-export interface Participant {
-  userId: string;
-  userName: string;
-  userPhoto?: string;
-  points: number;
-  ranking: number;
+  updatedAt: string;
 }
 
 export interface CreateEventData {
@@ -27,4 +18,12 @@ export interface CreateEventData {
   startDate: string;
   endDate: string;
   entryFee?: number;
+}
+
+export interface UpdateEventStatusData {
+  status: EventStatus;
+}
+
+export interface InviteParticipantData {
+  userIds: string[];
 }

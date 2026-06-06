@@ -18,3 +18,10 @@ export interface HydrationLog {
 export interface AddHydrationData {
   amountMl: number;
 }
+
+export interface HydrationStats {
+  todayAmount: number;
+  todayGoal: number;
+  weeklyTotal: number;
+  weeklyAverage: number;
+}

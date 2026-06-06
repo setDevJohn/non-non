@@ -38,21 +38,21 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ control, errors }) =
       />
 
       <ControlledInput
-        name="heightCm"
+        name="height"
         control={control}
         label="Altura (cm)"
         placeholder="Ex: 175"
         keyboardType="numeric"
-        error={errors.heightCm?.message}
+        error={errors.height?.message}
       />
 
       <ControlledInput
-        name="weightKg"
+        name="weight"
         control={control}
         label="Peso (kg)"
         placeholder="Ex: 70"
         keyboardType="numeric"
-        error={errors.weightKg?.message}
+        error={errors.weight?.message}
       />
 
       <ControlledInput

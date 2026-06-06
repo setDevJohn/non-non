@@ -1,5 +1,5 @@
 import api from './api';
-import { Workout, CreateWorkoutData } from '@/types';
+import { Workout, CreateWorkoutData, WorkoutStats } from '@/types';
 import { showToast } from '@/utils/toast';
 
 export const workoutService = {
@@ -8,7 +8,7 @@ export const workoutService = {
     return response.data;
   },
 
-  getMyWeeklyStats: async (): Promise<any> => {
+  getMyWeeklyStats: async (): Promise<WorkoutStats> => {
     const response = await api.get('/workouts/me/weekly');
     return response.data;
   },

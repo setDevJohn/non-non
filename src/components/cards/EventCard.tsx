@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '@/components/ui';
-import { Users, Trophy, Clock, Zap } from 'lucide-react-native';
+import { Trophy, Clock, Zap } from 'lucide-react-native';
 import { Event } from '@/types';
 
 interface EventCardProps {
@@ -36,26 +36,13 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onPress }) => {
         <View className="flex-row gap-6 mb-4">
           <View className="flex-row items-center">
             <View className="bg-zinc-800 p-2 rounded-xl mr-2">
-              <Users size={18} color="#a1a1aa" />
-            </View>
-            <View>
-              <Text className="text-white font-semibold text-base">
-                {event.participants.length}
-              </Text>
-              <Text className="text-zinc-500 text-xs">
-                / {event.maxParticipants}
-              </Text>
-            </View>
-          </View>
-          <View className="flex-row items-center">
-            <View className="bg-zinc-800 p-2 rounded-xl mr-2">
               <Trophy size={18} color="#facc15" />
             </View>
             <View>
               <Text className="text-yellow-400 font-black text-lg">
-                R$ {event.prizePool || 0}
+                R$ {event.entryFee || 0}
               </Text>
-              <Text className="text-zinc-500 text-xs">Prêmio</Text>
+              <Text className="text-zinc-500 text-xs">Entrada</Text>
             </View>
           </View>
         </View>
@@ -71,25 +58,43 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onPress }) => {
             className={`px-3 py-1 rounded-full ${
               event.status === 'active'
                 ? 'bg-emerald-500/20'
-                : event.status === 'pending'
+                : event.status === 'waiting_confirmation'
                 ? 'bg-yellow-500/20'
-                : 'bg-zinc-800'
+                : event.status === 'ready'
+                ? 'bg-blue-500/20'
+                : event.status === 'draft'
+                ? 'bg-zinc-700/50'
+                : event.status === 'finished'
+                ? 'bg-zinc-800'
+                : 'bg-red-500/20'
             }`}
           >
             <Text
               className={`text-xs font-semibold ${
                 event.status === 'active'
                   ? 'text-emerald-500'
-                  : event.status === 'pending'
+                  : event.status === 'waiting_confirmation'
                   ? 'text-yellow-400'
-                  : 'text-zinc-400'
+                  : event.status === 'ready'
+                  ? 'text-blue-400'
+                  : event.status === 'draft'
+                  ? 'text-zinc-400'
+                  : event.status === 'finished'
+                  ? 'text-zinc-400'
+                  : 'text-red-400'
               }`}
             >
               {event.status === 'active'
                 ? 'Em andamento'
-                : event.status === 'pending'
-                ? 'Aguardando'
-                : 'Finalizado'}
+                : event.status === 'waiting_confirmation'
+                ? 'Aguardando Confirmação'
+                : event.status === 'ready'
+                ? 'Pronto'
+                : event.status === 'draft'
+                ? 'Rascunho'
+                : event.status === 'finished'
+                ? 'Finalizado'
+                : 'Cancelado'}
             </Text>
           </View>
         </View>

@@ -8,7 +8,7 @@ import { Calendar, Users, Trophy, Plus, Clock, Zap } from 'lucide-react-native';
 export default function EventsScreen() {
   const router = useRouter();
   const { events, fetchEvents, isLoading } = useEventStore();
-  const [activeTab, setActiveTab] = useState<'active' | 'pending' | 'draft' | 'completed'>('active');
+  const [activeTab, setActiveTab] = useState<'active' | 'waiting_confirmation' | 'ready' | 'draft' | 'finished' | 'cancelled'>('draft');
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -30,12 +30,16 @@ export default function EventsScreen() {
     switch (activeTab) {
       case 'active':
         return event.status === 'active';
-      case 'pending':
-        return event.status === 'pending';
+      case 'waiting_confirmation':
+        return event.status === 'waiting_confirmation';
+      case 'ready':
+        return event.status === 'ready';
       case 'draft':
         return event.status === 'draft';
-      case 'completed':
-        return event.status === 'completed';
+      case 'finished':
+        return event.status === 'finished';
+      case 'cancelled':
+        return event.status === 'cancelled';
       default:
         return true;
     }
@@ -43,9 +47,11 @@ export default function EventsScreen() {
 
   const tabs = [
     { key: 'active' as const, label: 'Ativos' },
-    { key: 'pending' as const, label: 'Pendentes' },
+    { key: 'waiting_confirmation' as const, label: 'Confirmação' },
+    { key: 'ready' as const, label: 'Prontos' },
     { key: 'draft' as const, label: 'Rascunhos' },
-    { key: 'completed' as const, label: 'Finalizados' },
+    { key: 'finished' as const, label: 'Finalizados' },
+    { key: 'cancelled' as const, label: 'Cancelados' },
   ];
 
   return (
@@ -133,26 +139,13 @@ export default function EventsScreen() {
                 <View className="flex-row gap-6 mb-4">
                   <View className="flex-row items-center">
                     <View className="bg-zinc-800 p-2 rounded-xl mr-2">
-                      <Users size={18} color="#a1a1aa" />
-                    </View>
-                    <View>
-                      <Text className="text-white font-semibold text-base">
-                        {event.participants.length}
-                      </Text>
-                      <Text className="text-zinc-500 text-xs">
-                        Participantes
-                      </Text>
-                    </View>
-                  </View>
-                  <View className="flex-row items-center">
-                    <View className="bg-zinc-800 p-2 rounded-xl mr-2">
                       <Trophy size={18} color="#facc15" />
                     </View>
                     <View>
                       <Text className="text-yellow-400 font-black text-lg">
-                        R$ {event.prizePool || 0}
+                        R$ {event.entryFee || 0}
                       </Text>
-                      <Text className="text-zinc-500 text-xs">Prêmio</Text>
+                      <Text className="text-zinc-500 text-xs">Entrada</Text>
                     </View>
                   </View>
                 </View>
@@ -168,31 +161,43 @@ export default function EventsScreen() {
                     className={`px-3 py-1 rounded-full ${
                       event.status === 'active'
                         ? 'bg-emerald-500/20'
-                        : event.status === 'pending'
+                        : event.status === 'waiting_confirmation'
                         ? 'bg-yellow-500/20'
+                        : event.status === 'ready'
+                        ? 'bg-blue-500/20'
                         : event.status === 'draft'
                         ? 'bg-zinc-700/50'
-                        : 'bg-zinc-800'
+                        : event.status === 'finished'
+                        ? 'bg-zinc-800'
+                        : 'bg-red-500/20'
                     }`}
                   >
                     <Text
                       className={`text-xs font-semibold ${
                         event.status === 'active'
                           ? 'text-emerald-500'
-                          : event.status === 'pending'
+                          : event.status === 'waiting_confirmation'
                           ? 'text-yellow-400'
+                          : event.status === 'ready'
+                          ? 'text-blue-400'
                           : event.status === 'draft'
                           ? 'text-zinc-400'
-                          : 'text-zinc-400'
+                          : event.status === 'finished'
+                          ? 'text-zinc-400'
+                          : 'text-red-400'
                       }`}
                     >
                       {event.status === 'active'
                         ? 'Em andamento'
-                        : event.status === 'pending'
-                        ? 'Aguardando'
+                        : event.status === 'waiting_confirmation'
+                        ? 'Aguardando Confirmação'
+                        : event.status === 'ready'
+                        ? 'Pronto'
                         : event.status === 'draft'
                         ? 'Rascunho'
-                        : 'Finalizado'}
+                        : event.status === 'finished'
+                        ? 'Finalizado'
+                        : 'Cancelado'}
                     </Text>
                   </View>
                 </View>

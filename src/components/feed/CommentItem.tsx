@@ -18,7 +18,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
         </View>
         <Text className="text-white font-semibold text-sm">{comment.userName}</Text>
       </View>
-      <Text className="text-zinc-300 text-sm leading-relaxed">{comment.text}</Text>
+      <Text className="text-zinc-300 text-sm leading-relaxed">{comment.content}</Text>
     </View>
   );
 };

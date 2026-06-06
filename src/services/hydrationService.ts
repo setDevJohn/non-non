@@ -1,24 +1,24 @@
 import api from './api';
-import { HydrationRecord, AddHydrationData } from '@/types';
+import { HydrationRecord, AddHydrationData, HydrationStats, HydrationLog } from '@/types';
 import { showToast } from '@/utils/toast';
 
 export const hydrationService = {
-  getMyHydration: async (): Promise<any> => {
+  getMyHydration: async (): Promise<HydrationRecord[]> => {
     const response = await api.get('/hydration/me');
     return response.data;
   },
 
-  getTodayHydration: async (): Promise<any> => {
+  getTodayHydration: async (): Promise<HydrationStats> => {
     const response = await api.get('/hydration/today');
     return response.data;
   },
 
-  getWeeklyHydration: async (): Promise<any> => {
+  getWeeklyHydration: async (): Promise<HydrationStats> => {
     const response = await api.get('/hydration/weekly');
     return response.data;
   },
 
-  addHydration: async (data: AddHydrationData): Promise<any> => {
+  addHydration: async (data: AddHydrationData): Promise<HydrationLog> => {
     const response = await api.post('/hydration', { amountMl: data.amountMl });
     showToast.success('Hidratação registrada!');
     return response.data;

@@ -1,24 +1,24 @@
 import { create } from 'zustand';
-import { HydrationRecord, HydrationLog, AddHydrationData } from '@/types';
+import { HydrationRecord, HydrationLog, AddHydrationData, HydrationStats } from '@/types';
 import { hydrationService } from '@/services';
 
 interface HydrationState {
-  todayRecord: HydrationRecord | null;
+  todayStats: HydrationStats | null;
   isLoading: boolean;
-  fetchTodayRecord: () => Promise<void>;
+  fetchTodayStats: () => Promise<void>;
   addHydration: (data: AddHydrationData) => Promise<void>;
   calculateDailyGoal: (weight: number, option: '28ml/kg' | '35ml/kg') => number;
 }
 
 export const useHydrationStore = create<HydrationState>((set, get) => ({
-  todayRecord: null,
+  todayStats: null,
   isLoading: false,
   
-  fetchTodayRecord: async () => {
+  fetchTodayStats: async () => {
     set({ isLoading: true });
     try {
-      const record = await hydrationService.getTodayHydration();
-      set({ todayRecord: record, isLoading: false });
+      const stats = await hydrationService.getTodayHydration();
+      set({ todayStats: stats, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -30,9 +30,9 @@ export const useHydrationStore = create<HydrationState>((set, get) => ({
     try {
       await hydrationService.addHydration(data);
       
-      // Refresh the record
-      const record = await hydrationService.getTodayHydration();
-      set({ todayRecord: record, isLoading: false });
+      // Refresh the stats
+      const stats = await hydrationService.getTodayHydration();
+      set({ todayStats: stats, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
       throw error;

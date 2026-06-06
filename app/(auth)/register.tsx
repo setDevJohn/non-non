@@ -8,11 +8,11 @@ import { useAuthStore, useHydrationStore } from '@/store';
 import { ControlledInput, Button, Card, SafeScreen } from '@/components/ui';
 
 const registerSchema = z.object({
-  name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
+  name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
-  heightCm: z.string().optional(),
-  weightKg: z.string().optional(),
+  height: z.string().optional(),
+  weight: z.string().optional(),
   birthDate: z.string().optional(),
   hydrationOption: z.enum(['28ml/kg', '35ml/kg']).optional(),
 });
@@ -38,28 +38,28 @@ export default function RegisterScreen() {
       name: 'Jhony',
       email: 'jhony00._@hotmail.com',
       password: '123456',
-      heightCm: '174',
-      weightKg: '96',
+      height: '174',
+      weight: '96',
       birthDate: '06-03-2000',
       hydrationOption: '35ml/kg',
     },
   });
 
-  const weightKg = watch('weightKg');
+  const weight = watch('weight');
 
   React.useEffect(() => {
-    if (weightKg) {
-      const goal = calculateDailyGoal(parseFloat(weightKg), hydrationOption);
+    if (weight) {
+      const goal = calculateDailyGoal(parseFloat(weight), hydrationOption);
       setEstimatedGoal(goal);
     }
-  }, [weightKg, hydrationOption, calculateDailyGoal]);
+  }, [weight, hydrationOption, calculateDailyGoal]);
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       await registerUser({
         ...data,
-        heightCm: data.heightCm ? parseFloat(data.heightCm) : undefined,
-        weightKg: data.weightKg ? parseFloat(data.weightKg) : undefined,
+        height: data.height ? parseFloat(data.height) : undefined,
+        weight: data.weight ? parseFloat(data.weight) : undefined,
       });
       
       // Check if onboarding is completed
@@ -125,8 +125,8 @@ export default function RegisterScreen() {
             label="Altura (cm)"
             placeholder="175"
             control={control}
-            name="heightCm"
-            error={errors.heightCm?.message}
+            name="height"
+            error={errors.height?.message}
             keyboardType="number-pad"
           />
 
@@ -134,8 +134,8 @@ export default function RegisterScreen() {
             label="Peso (kg)"
             placeholder="75"
             control={control}
-            name="weightKg"
-            error={errors.weightKg?.message}
+            name="weight"
+            error={errors.weight?.message}
             keyboardType="number-pad"
           />
 
@@ -167,8 +167,8 @@ export default function RegisterScreen() {
             }`}
             onPress={() => {
               setHydrationOption('28ml/kg');
-              if (weightKg) {
-                setEstimatedGoal(calculateDailyGoal(parseFloat(weightKg), '28ml/kg'));
+              if (weight) {
+                setEstimatedGoal(calculateDailyGoal(parseFloat(weight), '28ml/kg'));
               }
             }}
           >
@@ -184,8 +184,8 @@ export default function RegisterScreen() {
             }`}
             onPress={() => {
               setHydrationOption('35ml/kg');
-              if (weightKg) {
-                setEstimatedGoal(calculateDailyGoal(parseFloat(weightKg), '35ml/kg'));
+              if (weight) {
+                setEstimatedGoal(calculateDailyGoal(parseFloat(weight), '35ml/kg'));
               }
             }}
           >

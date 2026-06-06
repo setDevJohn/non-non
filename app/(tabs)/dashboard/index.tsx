@@ -11,7 +11,7 @@ export default function DashboardScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
   const { events, fetchEvents } = useEventStore();
-  const { todayRecord, fetchTodayRecord } = useHydrationStore();
+  const { todayStats, fetchTodayStats } = useHydrationStore();
   const [refreshing, setRefreshing] = useState(false);
   const [workoutReminderDone, setWorkoutReminderDone] = useState(false);
   const [waterReminderDone, setWaterReminderDone] = useState(false);
@@ -19,14 +19,14 @@ export default function DashboardScreen() {
   const hydrationProgressAnim = useRef(new Animated.Value(0)).current;
 
   const currentEvent = events.find((e) => e.status === 'active');
-  const hydrationProgress = todayRecord?.goal && todayRecord.goal > 0
-    ? (todayRecord.amount || 0) / todayRecord.goal * 100
+  const hydrationProgress = todayStats?.todayGoal && todayStats.todayGoal > 0
+    ? (todayStats.todayAmount || 0) / todayStats.todayGoal * 100
     : 0;
 
   useEffect(() => {
     fetchEvents();
-    fetchTodayRecord();
-  }, [fetchEvents, fetchTodayRecord]);
+    fetchTodayStats();
+  }, [fetchEvents, fetchTodayStats]);
 
   useEffect(() => {
     Animated.timing(hydrationProgressAnim, {
@@ -41,7 +41,7 @@ export default function DashboardScreen() {
     try {
       await Promise.all([
         fetchEvents(),
-        fetchTodayRecord(),
+        fetchTodayStats(),
       ]);
     } catch (error) {
       console.error('Error refreshing dashboard:', error);
@@ -54,12 +54,10 @@ export default function DashboardScreen() {
     ? Math.ceil((new Date(currentEvent.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     : 0;
 
-  const currentUserParticipant = currentEvent?.participants?.find(p => p.userId === user?.id);
-
   const handleAddWater = async (amount: number) => {
     try {
       await hydrationService.addHydration({ amountMl: amount });
-      await fetchTodayRecord();
+      await fetchTodayStats();
     } catch (error) {
       console.error('Error adding water:', error);
     }
@@ -71,14 +69,7 @@ export default function DashboardScreen() {
     return day === 0 || day === 6; // 0 = Sunday, 6 = Saturday
   };
 
-  const isBelowAverage = () => {
-    if (!currentEvent || !currentUserParticipant) return false;
-    const totalPoints = currentEvent.participants.reduce((sum, p) => sum + p.points, 0);
-    const averagePoints = totalPoints / currentEvent.participants.length;
-    return currentUserParticipant.points < averagePoints;
-  };
-
-  const showRecoveryCard = isWeekend() && isBelowAverage();
+  const showRecoveryCard = isWeekend();
 
   return (
     <SafeScreen>
@@ -139,7 +130,7 @@ export default function DashboardScreen() {
                       Meta de Água
                     </Text>
                     <Text className="text-zinc-400 text-xs">
-                      Beba {todayRecord?.goal || 0}ml hoje
+                      Beba {todayStats?.todayGoal || 0}ml hoje
                     </Text>
                   </View>
                   <View className="bg-blue-500/20 px-3 py-1 rounded-xl">
@@ -171,34 +162,34 @@ export default function DashboardScreen() {
 
                 {/* Prize */}
                 <View className="bg-yellow-500/10 px-4 py-3 border border-yellow-500/20 rounded-2xl">
-                  <Text className="mb-1 font-medium text-zinc-400 text-xs">Prêmio</Text>
+                  <Text className="mb-1 font-medium text-zinc-400 text-xs">Entrada</Text>
                   <Text className="font-black text-yellow-400 text-xl">
-                    {currentEvent.prizePool ? `R$ ${currentEvent.prizePool}` : 'Grátis'}
+                    R$ {currentEvent.entryFee || 0}
                   </Text>
                 </View>
               </View>
 
               {/* Metrics Section */}
               <View className="flex-row gap-4 mb-6">
-                {/* Position Metric */}
+                {/* Days Remaining */}
                 <View className="flex-1 bg-zinc-800/60 p-4 rounded-2xl">
                   <View className="flex-row items-center mb-2">
-                    <Trophy size={16} color="#facc15" className="mr-2" />
-                    <Text className="font-medium text-zinc-400 text-xs">Posição</Text>
+                    <Clock size={16} color="#a1a1aa" className="mr-2" />
+                    <Text className="font-medium text-zinc-400 text-xs">Dias Restantes</Text>
                   </View>
                   <Text className="font-black text-white text-2xl">
-                    #{currentUserParticipant?.ranking || '-'}
+                    {daysUntilEventEnd}
                   </Text>
                 </View>
 
-                {/* Points Metric */}
+                {/* Status */}
                 <View className="flex-1 bg-zinc-800/60 p-4 rounded-2xl">
                   <View className="flex-row items-center mb-2">
                     <Flame size={16} color="#10b981" className="mr-2" />
-                    <Text className="font-medium text-zinc-400 text-xs">Pontos</Text>
+                    <Text className="font-medium text-zinc-400 text-xs">Status</Text>
                   </View>
                   <Text className="font-black text-emerald-500 text-2xl">
-                    {currentUserParticipant?.points || 0}
+                    {currentEvent.status === 'active' ? 'Ativo' : currentEvent.status}
                   </Text>
                 </View>
               </View>
@@ -278,7 +269,7 @@ export default function DashboardScreen() {
             {/* Progress Info and Buttons */}
             <View className="flex-row justify-between items-center gap-4">
               <Text className="flex-1 text-zinc-400 text-sm">
-                {todayRecord?.amount || 0}ml / {todayRecord?.goal || 0}ml
+                {todayStats?.todayAmount || 0}ml / {todayStats?.todayGoal || 0}ml
               </Text>
 
               {/* Quick Actions */}

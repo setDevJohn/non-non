@@ -47,14 +47,11 @@ export default function EventDetailScreen() {
           <Button
             title="Voltar"
             onPress={() => router.back()}
-            className="mt-4"
           />
         </View>
       </SafeScreen>
     );
   }
-
-  const sortedParticipants = [...event.participants].sort((a, b) => a.ranking - b.ranking);
 
   return (
     <SafeScreen>
@@ -103,14 +100,8 @@ export default function EventDetailScreen() {
 
             <View className="flex-row justify-between items-center bg-zinc-800 p-4 rounded-2xl">
               <View className="flex-row items-center">
-                <Users size={20} color="#a1a1aa" className="mr-2" />
-                <Text className="text-white font-semibold">
-                  {event.participants.length} / {event.maxParticipants}
-                </Text>
-              </View>
-              <View className="flex-row items-center">
                 <Trophy size={20} color="#facc15" className="mr-2" />
-                <Text className="text-yellow-400 font-black text-lg">R$ {event.prizePool || 0}</Text>
+                <Text className="text-yellow-400 font-black text-lg">R$ {event.entryFee || 0}</Text>
               </View>
             </View>
           </Card>
@@ -149,56 +140,13 @@ export default function EventDetailScreen() {
 
           {/* Ranking Tab */}
           {activeTab === 'ranking' && (
-            <View>
-              {sortedParticipants.length === 0 ? (
-                <Card className="items-center py-12">
-                  <Users size={48} color="#3f3f46" />
-                  <Text className="text-zinc-400 font-semibold text-base mt-4">
-                    Nenhum participante ainda
-                  </Text>
-                </Card>
-              ) : (
-                sortedParticipants.map((participant, index) => (
-                  <Card
-                    key={participant.userId}
-                    className={`mb-3 p-4 ${
-                      index === 0
-                        ? 'border-l-4 border-l-yellow-400 bg-yellow-400/5'
-                        : index === 1
-                        ? 'border-l-4 border-l-slate-300 bg-slate-300/5'
-                        : index === 2
-                        ? 'border-l-4 border-l-amber-700 bg-amber-700/5'
-                        : ''
-                    }`}
-                  >
-                    <View className="flex-row items-center">
-                      <View
-                        className={`w-10 h-10 rounded-full items-center justify-center mr-4 ${
-                          index === 0
-                            ? 'bg-yellow-400'
-                            : index === 1
-                            ? 'bg-slate-300'
-                            : index === 2
-                            ? 'bg-amber-700'
-                            : 'bg-zinc-800'
-                        }`}
-                      >
-                        <Text className="font-black text-base">
-                          {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
-                        </Text>
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-white font-semibold text-base">{participant.userName}</Text>
-                        <Text className="text-zinc-400 text-sm">{participant.points} pontos</Text>
-                      </View>
-                      <View className="bg-zinc-800 px-3 py-1 rounded-full">
-                        <Text className="text-emerald-500 font-bold text-sm">#{participant.ranking}</Text>
-                      </View>
-                    </View>
-                  </Card>
-                ))
-              )}
-            </View>
+            <Card className="items-center py-12">
+              <Users size={48} color="#3f3f46" />
+              <Text className="text-zinc-400 font-semibold text-base mt-4">
+                Ranking em breve
+              </Text>
+              <Text className="text-zinc-500 text-sm mt-2">Acompanhe a classificação dos participantes</Text>
+            </Card>
           )}
 
           {/* Feed Tab */}
